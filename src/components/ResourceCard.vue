@@ -1,137 +1,163 @@
 <template>
-  <div class="resource-card">
-    <div class="card-image" :style="{ backgroundImage: `url(${resource.img})` }">
-      <div class="card-overlay">
-        <span class="material-symbols-outlined category-icon">{{ categoryIcon }}</span>
-        <div class="card-actions">
-          <span class="material-symbols-outlined">share</span>
-          <span class="material-symbols-outlined">more_horiz</span>
-          <span
-            class="material-symbols-outlined bookmark"
-            :class="{ bookmarked: resource.isBookmarked }"
-            @click="toggleBookmark(resource.title)"
-          >
-            {{ resource.isBookmarked ? 'bookmark' : 'bookmark_border' }}
-          </span>
-        </div>
-      </div>
+  <div class="card">
+    <div class="card-image">
+      <img :src="`/src/assets/images/${resource.img}.jpg`" :alt="resource.title">
     </div>
     <div class="card-content">
-      <p>{{ resource.category }} • Resources</p>
-      <h3>{{ resource.title }}</h3>
+      <div class="card-category">
+        <span class="category-icon">
+          <span class="material-symbols-outlined">
+            {{ getCategoryIcon(resource.category) }}
+          </span>
+        </span>
+        <span class="category-text">{{ resource.category }} • Resources</span>
+      </div>
+      <h3 class="card-title">{{ resource.title }}</h3>
+    </div>
+    <div class="card-actions">
+      <button
+        class="bookmark-btn"
+        :class="{ 'bookmarked': resource.isBookmarked }"
+        @click="toggleBookmark"
+      >
+        <span class="material-symbols-outlined">
+          {{ resource.isBookmarked ? 'bookmark' : 'bookmark_border' }}
+        </span>
+      </button>
+      <button class="more-btn">
+        <span class="material-symbols-outlined">more_vert</span>
+      </button>
     </div>
   </div>
 </template>
 
-<script setup>
-import { computed } from 'vue';
+<script setup lang="ts">
+import { defineProps, defineEmits } from 'vue';
 
 const props = defineProps({
   resource: {
     type: Object,
-    required: true,
-  },
+    required: true
+  }
 });
 
 const emit = defineEmits(['toggle-bookmark']);
 
-const categoryIcon = computed(() => {
-  switch (props.resource.category) {
-    case 'Workplace': return 'work';
-    case 'Training': return 'school';
-    case 'Productivity': return 'trending_up';
-    case 'Education': return 'book';
-    default: return 'info';
-  }
-});
+const toggleBookmark = () => {
+  emit('toggle-bookmark', props.resource);
+};
 
-const toggleBookmark = (title) => {
-  emit('toggle-bookmark', title);
+const getCategoryIcon = (category: string) => {
+  switch(category) {
+    case 'Workplace':
+      return 'business';
+    case 'Training':
+      return 'school';
+    case 'Productivity':
+      return 'laptop';
+    case 'Education':
+      return 'menu_book';
+    default:
+      return 'article';
+  }
 };
 </script>
 
 <style scoped>
-.resource-card {
+.card {
+  position: relative;
   border-radius: 8px;
   overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s ease;
-}
-
-.card-image {
-  position: relative;
-  height: 150px;
-  background-size: cover;
-  background-position: center;
+  background-color: #fff;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   transition: transform 0.3s ease;
+  margin-bottom: 20px;
 }
 
-.resource-card:hover .card-image {
+.card:hover .card-image img {
   transform: scale(1.05);
 }
 
-.card-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  padding: 10px;
-  background: rgba(0, 0, 0, 0.3);
+.card-image {
+  height: 150px;
+  overflow: hidden;
 }
 
-.category-icon {
-  color: white;
-  font-size: 24px;
-}
-
-.card-actions {
-  display: flex;
-  gap: 10px;
-}
-
-.card-actions span {
-  color: white;
-  font-size: 20px;
-  cursor: pointer;
-  transition: color 0.2s ease;
-}
-
-.card-actions span:hover {
-  color: #ddd;
-}
-
-.card-actions span:active {
-  color: #bbb;
-}
-
-.card-actions span:focus-visible {
-  outline: 2px solid white;
-  outline-offset: 2px;
-}
-
-.bookmark.bookmarked {
-  color: #1a73e8;
+.card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
 }
 
 .card-content {
-  padding: 15px;
-  background: #2a2f3b;
+  padding: 16px;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.7), transparent);
   color: white;
 }
 
-.card-content p {
-  margin: 0 0 5px;
+.card-category {
+  display: flex;
+  align-items: center;
   font-size: 12px;
-  color: #ccc;
+  margin-bottom: 4px;
 }
 
-.card-content h3 {
-  margin: 0;
+.category-icon {
+  display: flex;
+  align-items: center;
+  margin-right: 4px;
+}
+
+.card-title {
   font-size: 16px;
-  line-height: 1.4;
+  margin: 0;
+  line-height: 1.3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+}
+
+.card-actions {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: flex;
+  gap: 4px;
+}
+
+.bookmark-btn, .more-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  background-color: rgba(255, 255, 255, 0.8);
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.bookmark-btn:hover, .more-btn:hover {
+  background-color: rgba(255, 255, 255, 1);
+}
+
+.bookmark-btn:focus-visible, .more-btn:focus-visible {
+  outline: 2px solid #2196F3;
+  outline-offset: 2px;
+}
+
+.bookmark-btn.bookmarked .material-symbols-outlined {
+  color: #2196F3;
+}
+
+.material-symbols-outlined {
+  font-size: 20px;
 }
 </style>

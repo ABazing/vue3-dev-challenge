@@ -1,27 +1,9 @@
 <template>
-  <div class="resources-app">
-    <header>
-      <h1>YOUR RESOURCES</h1>
-      <div class="header-icons">
-        <span class="material-symbols-outlined">edit</span>
-        <span class="material-symbols-outlined">add</span>
-        <span class="material-symbols-outlined">menu</span>
-        <span class="material-symbols-outlined">more_vert</span>
-      </div>
-    </header>
+  <div class="app-container">
+    <ResourceHeader />
+    <ResourceFilter @filter-change="handleFilterChange" />
 
-    <div class="filters">
-      <button
-        v-for="filter in filters"
-        :key="filter"
-        :class="{ active: activeFilters.includes(filter) || (filter === 'ALL' && activeFilters.length === filters.length - 1) }"
-        @click="toggleFilter(filter)"
-      >
-        {{ filter }}
-      </button>
-    </div>
-
-    <div class="resource-grid">
+    <div class="resources-grid">
       <ResourceCard
         v-for="resource in filteredResources"
         :key="resource.title"
@@ -30,187 +12,118 @@
       />
     </div>
 
-    <button class="show-more">SHOW MORE</button>
+    <div class="show-more">
+      <button class="show-more-btn">
+        <span class="material-symbols-outlined">add_circle_outline</span>
+        Show More
+      </button>
     </div>
+  </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, computed } from 'vue';
+import ResourceHeader from './components/ResourceHeader.vue';
+import ResourceFilter from './components/ResourceFilter.vue';
 import ResourceCard from './components/ResourceCard.vue';
+import resourcesData from './data/resources';
 
-const resources = ref([
-  {
-    title: "Ignition Podcast: Innovation, Agility, Talent, Workplace, Culture, and more",
-    category: "Workplace",
-    isBookmarked: true,
-    img: "workplace",
-  },
-  {
-    title: "Threat Briefing",
-    category: "Training",
-    isBookmarked: false,
-    img: "training",
-  },
-  {
-    title: "SSC Telework Portal",
-    category: "Productivity",
-    isBookmarked: false,
-    img: "productivity",
-  },
-  {
-    title: "AIR FORCE Virtual Education",
-    category: "Education",
-    isBookmarked: false,
-    img: "virtual-education",
-  },
-  {
-    title: "Guide to DigitalU",
-    category: "Education",
-    isBookmarked: true,
-    img: "education",
-  },
-  {
-    title: "How Build a Collaborative Team Environment",
-    category: "Workplace",
-    isBookmarked: false,
-    img: "team-environment",
-  },
-]);
+interface Resource {
+  title: string;
+  category: string;
+  isBookmarked: boolean;
+  img: string;
+}
 
-const filters = ['ALL', 'ACQUISITION', 'COMMUNICATION', 'ENGINEERING', 'EDUCATION', 'PRODUCTIVITY', 'TRAINING', 'WORKPLACE'];
-const activeFilters = ref(['ALL']);
+const resources = ref<Resource[]>(resourcesData);
+const activeFilters = ref<string[]>(['All']);
 
-const filteredResources = computed(() => {
-  if (activeFilters.value.includes('ALL') || activeFilters.value.length === filters.length - 1) {
-    return resources.value;
-  }
-  return resources.value.filter(resource => activeFilters.value.includes(resource.category));
-});
-
-const toggleFilter = (filter) => {
-  if (filter === 'ALL') {
-    activeFilters.value = ['ALL'];
-  } else {
-    if (activeFilters.value.includes('ALL')) {
-      activeFilters.value = [];
-    }
-    if (activeFilters.value.includes(filter)) {
-      activeFilters.value = activeFilters.value.filter(f => f !== filter);
-    } else {
-      activeFilters.value.push(filter);
-    }
-    if (activeFilters.value.length === 0) {
-      activeFilters.value = ['ALL'];
-    } else if (activeFilters.value.length === filters.length - 1) {
-      activeFilters.value = ['ALL'];
-    }
-  }
+const handleFilterChange = (filters: string[]) => {
+  activeFilters.value = filters;
 };
 
-const toggleBookmark = (title) => {
-  const resource = resources.value.find(r => r.title === title);
-  if (resource) {
-    resource.isBookmarked = !resource.isBookmarked;
+const filteredResources = computed(() => {
+  if (activeFilters.value.includes('All')) {
+    return resources.value;
+  }
+
+  return resources.value.filter(resource =>
+    activeFilters.value.includes(resource.category)
+  );
+});
+
+const toggleBookmark = (resource: Resource) => {
+  const index = resources.value.findIndex(r => r.title === resource.title);
+  if (index !== -1) {
+    resources.value[index].isBookmarked = !resources.value[index].isBookmarked;
   }
 };
 </script>
 
-<style scoped>
-.resources-app {
-  font-family: Arial, sans-serif;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 20px;
-}
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,0..200');
 
-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-}
-
-h1 {
-  color: #1a73e8;
-  font-size: 24px;
+* {
   margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-.header-icons span {
-  font-size: 24px;
-  margin-left: 15px;
-  cursor: pointer;
-  color: #666;
-}
-
-.header-icons span:hover {
+body {
+  font-family: 'Roboto', sans-serif;
+  background-color: #f9f9f9;
   color: #333;
 }
 
-.filters {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 20px;
+.app-container {
+  max-width: 1200px;
+  margin: 40px auto;
+  padding: 0 20px;
 }
 
-.filters button {
-  padding: 8px 16px;
-  border: 1px solid #ccc;
-  border-radius: 20px;
-  background: white;
-  cursor: pointer;
-  font-size: 14px;
-  transition: all 0.2s ease;
-}
-
-.filters button.active {
-  background: #1a73e8;
-  color: white;
-  border-color: #1a73e8;
-}
-
-.filters button:hover {
-  background: #e8f0fe;
-}
-
-.filters button:active {
-  background: #d2e3fc;
-}
-
-.filters button:focus-visible {
-  outline: 2px solid #1a73e8;
-  outline-offset: 2px;
-}
-
-.resource-grid {
+.resources-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
   gap: 20px;
-  margin-bottom: 20px;
+  margin-bottom: 30px;
 }
 
 .show-more {
-  display: block;
-  margin: 0 auto;
-  padding: 10px 20px;
-  border: 1px solid #ccc;
+  display: flex;
+  justify-content: center;
+  margin: 30px 0;
+}
+
+.show-more-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
   border-radius: 20px;
-  background: white;
+  border: none;
+  background-color: transparent;
   cursor: pointer;
   font-size: 14px;
-  transition: all 0.2s ease;
+  color: #666;
+  transition: background-color 0.2s ease;
 }
 
-.show-more:hover {
-  background: #e8f0fe;
+.show-more-btn:hover {
+  background-color: #f0f0f0;
 }
 
-.show-more:active {
-  background: #d2e3fc;
-}
-
-.show-more:focus-visible {
-  outline: 2px solid #1a73e8;
+.show-more-btn:focus-visible {
+  outline: 2px solid #2196F3;
   outline-offset: 2px;
 }
+
+.material-symbols-outlined {
+  font-variation-settings:
+  'FILL' 0,
+  'wght' 400,
+  'GRAD' 0,
+  'opsz' 24;
+}
+
 </style>

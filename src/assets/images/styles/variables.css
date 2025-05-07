@@ -1,0 +1,17 @@
+:root {
+  --primary-color: #2b5797;
+  --secondary-color: #f0f3f7;
+  --text-color: #333;
+  --border-color: #ddd;
+  --hover-color: #e9ecf1;
+  --active-color: #2b5797;
+  --active-text-color: white;
+  --card-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+  --border-radius: 10px;
+  --button-radius: 20px;
+  --transition-speed: 0.2s;
+}
